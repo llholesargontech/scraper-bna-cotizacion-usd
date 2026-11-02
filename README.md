@@ -17,7 +17,7 @@ El proyecto toma la cotización de dólar billete, la guarda en un archivo CSV y
 
 ## Objetivos de web scraping
 
-- Navegar una página web real con Playwright.
+- Navegar la pagina del BNA con Playwright.
 - Esperar a que exista una tabla antes de leer la página.
 - Obtener el HTML generado por el navegador.
 - Recorrer filas y columnas HTML con BeautifulSoup.
