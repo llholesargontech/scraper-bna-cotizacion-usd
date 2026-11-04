@@ -1,15 +1,15 @@
 """Obtiene y guarda en csv  la cotización diaria del banco nación. Se usa playwright para abrir la página y beautifulSoup4 para leer la tabla HTML con la cotización del dólar."""
 
 from datetime import datetime
-
+from dbm import error
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
 URL = "https://www.bna.com.ar/Personas"
 
-
 def obtener_html():
-    """Abre la página del banco y devuelve el código HTML. retorna: str código HTML completo de la página """
+    """Abre la página del banco y devuelve el código HTML.
+      Retorna: str código HTML completo de la página """
     with sync_playwright() as p:
         navegador = p.chromium.launch(headless=True)
         pagina = navegador.new_page()
@@ -22,7 +22,8 @@ def obtener_html():
 
 
 def extraer_cotizacion(html):
-    """Busca en el HTML la fila del dólar con beatifulsoup"""
+    """Busca en el HTML la fila del dólar con beatifulsoup.
+    Retorna: tupla (compra, venta) con los valores de la cotización del dólar"""
     sopa = BeautifulSoup(html, "html.parser")
 
     for fila in sopa.find_all("tr"):
@@ -70,8 +71,12 @@ def main():
         html = obtener_html()
         compra, venta = extraer_cotizacion(html)
         guardar_cotizacion(compra, venta)
+    except ValueError as err_val:
+        print(f"Error en el formato de datos: {err_val}")
+    except OSError as err_io:
+        print(f"Error al manipular el archivo CSV: {err_io}")
     except Exception as error:
-        print("Ocurrió un error:", error)
+        print(f"Ocurrió un error inesperado durante la ejecución: {error}")
 
-
-main()
+if __name__ == "__main__":
+    main()
