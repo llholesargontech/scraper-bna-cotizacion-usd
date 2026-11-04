@@ -1,5 +1,6 @@
 """Obtiene y guarda en csv  la cotización diaria del banco nación. Se usa playwright para abrir la página y beautifulSoup4 para leer la tabla HTML con la cotización del dólar."""
 
+import csv
 from datetime import datetime
 from dbm import error
 from bs4 import BeautifulSoup
@@ -44,23 +45,23 @@ def guardar_cotizacion(compra, venta):
     cotizacion_existente = False
 
     try:
-        with open("cotizaciones.csv", "r", encoding="utf-8") as archivo:
-            contenido = archivo.read()
-
-        if fecha + "," in contenido:
-            cotizacion_existente = True
+        with open("cotizaciones.csv", "r", encoding="utf-8", newline="") as archivo:
+            cotizacion_existente = any(
+                fila and fila[0] == fecha
+                for fila in csv.reader(archivo)
+            )
     except FileNotFoundError:
         pass
 
     if cotizacion_existente:
         print("La cotización del día " + fecha + " ya existe")
     else:
-        with open("cotizaciones.csv", "a", encoding="utf-8") as archivo:
+        with open("cotizaciones.csv", "a", encoding="utf-8", newline="") as archivo:
+            escritor = csv.writer(archivo)
             if archivo.tell() == 0:
-                archivo.write("fecha,moneda,compra,venta\n")
+                escritor.writerow(["fecha", "moneda", "compra", "venta"])
 
-            linea = fecha + ",Dólar estadounidense," + compra + "," + venta
-            archivo.write(linea + "\n")
+            escritor.writerow([fecha, "Dólar estadounidense", compra, venta])
 
         print("Cotización guardada: compra " + compra + " - venta " + venta)
 
